@@ -7,6 +7,7 @@ sleep 1
 pacman -S --needed --noconfirm mingw-w64-x86_64-toolchain mingw-w64-x86_64-openssl mingw-w64-x86_64-libzip
 pacman -S --needed --noconfirm make automake autoconf autoconf-archive autogen bc bison flex cmake pkgconf openssl libtool m4 libidn2 git patch ed sed texinfo libunistring libunistring-devel python cython python-devel zsh
 echo "Packages installed, creating working directory:"
+export CURL_VERSION="7.80.0"
 export STATIC_FLAG="--enable-static --disable-shared"
 export IS_STATIC=1
 mkdir ./tsschecker_build_win64
@@ -37,9 +38,9 @@ echo "patches applied, continuing:\n"
 sleep 1
 echo "Building curl"
 sleep 1
-wget https://github.com/curl/curl/releases/download/curl-7_79_1/curl-7.79.1.tar.gz
-tar -zxvf curl-7.79.1.tar.gz
-cd ./curl-7.79.1
+wget https://curl.se/download/curl-$CURL_VERSION.tar.gz
+tar -zxvf curl-$CURL_VERSION.tar.gz
+cd ./curl-$CURL_VERSION
 ./configure $STATIC_FLAG --disable-dependency-tracking --enable-ipv6 --with-winssl --with-schannel --with-winidn --without-ssl --with-zlib
 make install
 cd ..
@@ -86,8 +87,8 @@ make LDFLAGS=-all-static
 cd ..
 echo "Done building, cleaning up temp files:"
 sleep 1
-rm -f curl-7.79.1.tar.gz
-rm -fr curl-7.79.1
+rm -f curl-$CURL_VERSION.tar.gz
+rm -fr curl-$CURL_VERSION
 rm -fr libplist
 rm -fr libimobiledevice-glue
 rm -fr libirecovery
