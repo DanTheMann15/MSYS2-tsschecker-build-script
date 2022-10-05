@@ -9,15 +9,15 @@ export PATH=$PATH:/tmp/tsschecker_build_win32/bin
 export LIBRARY_PATH=$LIBRARY_PATH:/tmp/tsschecker_build_win32/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp/tsschecker_build_win32/lib
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/tmp/tsschecker_build_win32/lib/pkgconfig:/tmp/tsschecker_build_win32/share/pkgconfig
-export C_INCLUDE_PATH=$C_INCLUDE_PATH:/tmp/tsschecker_build_win32/include
-export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/tmp/tsschecker_build_win32/include
-export OBJC_INCLUDE_PATH=$OBJC_INCLUDE_PATH:/tmp/tsschecker_build_win32/include
+export C_INCLUDE_PATH=$C_INCLUDE_PATH:-I/mingw32/include:-I/tmp/tsschecker_build_win32/include
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:-I/mingw32/include:-I/tmp/tsschecker_build_win32/include
+export OBJC_INCLUDE_PATH=$OBJC_INCLUDE_PATH:-I/mingw32/include:-I/tmp/tsschecker_build_win32/include
 sleep 1
 echo -e "Installing Required packages:"
 pacman -S --needed --noconfirm mingw-w64-i686-toolchain mingw-w64-i686-openssl mingw-w64-i686-libzip
 pacman -S --needed --noconfirm make automake autoconf autoconf-archive autogen bc bison flex cmake pkgconf openssl libtool m4 libidn2 git patch ed sed texinfo libunistring libunistring-devel python cython python-devel zsh
 echo "Packages installed, creating working directory:"
-export CURL_VERSION="7.81.0"
+export CURL_VERSION="7.85.0"
 export BUILD_OPTIONS="--enable-static --disable-shared --prefix=/tmp/tsschecker_build_win32"
 export IS_STATIC=1
 mkdir ./tsschecker_build_win32
@@ -32,7 +32,7 @@ git clone --recursive https://github.com/libimobiledevice/libplist.git
 git clone --recursive https://github.com/libimobiledevice/libirecovery.git
 git clone --recursive https://github.com/tihmstar/libgeneral.git
 git clone --recursive https://github.com/tihmstar/libfragmentzip.git
-git clone --recursive https://github.com/1Conan/tsschecker.git
+git clone --recursive https://github.com/DanTheMann15/tsschecker.git
 echo "applying patches:"
 echo "patching libgeneral"
 sed -i'' 's|vasprintf(&_err, err, ap);|_err=(char*)malloc(1024);vsprintf(_err, err, ap);|' ./libgeneral/libgeneral/exception.cpp
@@ -44,27 +44,27 @@ sleep 1
 echo "patching libfragmentzip"
 sed -i'' 's|fopen(savepath, \"w\")|fopen(savepath, \"wb\")|' ./libfragmentzip/libfragmentzip/libfragmentzip.c
 sleep 1
-echo "patches applied, continuing: \n"
+echo "patches applied, continuing:"
 sleep 1
 echo "Building curl"
 sleep 1
 wget https://curl.se/download/curl-$CURL_VERSION.tar.gz
 tar -zxvf curl-$CURL_VERSION.tar.gz
 cd ./curl-$CURL_VERSION
-./configure $BUILD_OPTIONS --disable-dependency-tracking --enable-ipv6 --with-winssl --with-schannel --with-winidn --without-ssl --with-zlib
-make install
+./configure $BUILD_OPTIONS  --disable-dependency-tracking --with-schannel --with-winidn --without-ssl --without-brotli --without-libgsasl --without-libpsl --without-librtmp --without-zstd
+make install LDFLAGS=-all-static
 cd ..
 echo "Building libplist"
 sleep 1
 cd ./libplist
 ./autogen.sh $BUILD_OPTIONS --without-cython
-make install
+make install LDFLAGS=-all-static
 cd ..
 echo "Building libimobiledevice-glue"
 sleep 1
 cd ./libimobiledevice-glue
 ./autogen.sh $BUILD_OPTIONS
-make install
+make install LDFLAGS=-all-static
 cd ..
 echo "Building libirecovery"
 sleep 1
@@ -75,19 +75,19 @@ autoheader
 automake --add-missing
 autoconf
 ./configure $BUILD_OPTIONS --with-dummy --without-udev
-make install
+make install LDFLAGS=-all-static
 cd ..
 echo "Building libgeneral"
 sleep 1
 cd ./libgeneral
 ./autogen.sh $BUILD_OPTIONS
-make install
+make install LDFLAGS=-all-static
 cd ..
 echo "Building libfragmentzip"
 sleep 1
 cd ./libfragmentzip
 ./autogen.sh $BUILD_OPTIONS
-make install
+make install LDFLAGS=-all-static
 cd ..
 echo "Building tsschecker"
 sleep 1
