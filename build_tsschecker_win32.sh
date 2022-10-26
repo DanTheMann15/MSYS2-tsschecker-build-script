@@ -17,7 +17,7 @@ echo -e "Installing Required packages:"
 pacman -S --needed --noconfirm mingw-w64-i686-toolchain mingw-w64-i686-openssl mingw-w64-i686-libzip
 pacman -S --needed --noconfirm make automake autoconf autoconf-archive autogen bc bison flex cmake pkgconf openssl libtool m4 libidn2 git patch ed sed texinfo libunistring libunistring-devel python cython python-devel zsh
 echo "Packages installed, creating working directory:"
-export CURL_VERSION="7.85.0"
+export CURL_VERSION="7.86.0"
 export BUILD_OPTIONS="--enable-static --disable-shared --prefix=/tmp/tsschecker_build_win32"
 export IS_STATIC=1
 mkdir ./tsschecker_build_win32
@@ -106,7 +106,7 @@ rm -fr libgeneral
 rm -fr libfragmentzip
 rm -f libirecovery.patch
 rm -fr /tmp/tsschecker_build_win32
-mv -f tsschecker/tsschecker/tsschecker.exe ../tsschecker.exe
+mv -f tsschecker/tsschecker/tsschecker.exe ../tsschecker_win32.exe
 cd ..
 rm -fr tsschecker_build_win32
 echo "Done!"
