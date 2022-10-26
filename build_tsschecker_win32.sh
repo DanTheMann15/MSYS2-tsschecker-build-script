@@ -27,19 +27,19 @@ export CC=gcc
 export CXX=g++
 echo -e "Cloning required dependencies:"
 sleep 1
-git clone --recursive https://github.com/libimobiledevice/libimobiledevice-glue.git
 git clone --recursive https://github.com/libimobiledevice/libplist.git
+git clone --recursive https://github.com/libimobiledevice/libimobiledevice-glue.git
 git clone --recursive https://github.com/libimobiledevice/libirecovery.git
 git clone --recursive https://github.com/tihmstar/libgeneral.git
 git clone --recursive https://github.com/tihmstar/libfragmentzip.git
 git clone --recursive https://github.com/DanTheMann15/tsschecker.git
 echo "applying patches:"
-echo "patching libgeneral"
-sed -i'' 's|vasprintf(&_err, err, ap);|_err=(char*)malloc(1024);vsprintf(_err, err, ap);|' ./libgeneral/libgeneral/exception.cpp
-sleep 1
 echo "patching libirecovery"
 wget -q https://gist.github.com/1Conan/2d015aad17f87f171b32ebfd9f48fb96/raw/c12fca047f8b0bba1c8983470bf863d80d7e1c1d/libirecovery.patch
 patch -p1 < libirecovery.patch -d ./libirecovery
+sleep 1
+echo "patching libgeneral"
+sed -i'' 's|vasprintf(&_err, err, ap);|_err=(char*)malloc(1024);vsprintf(_err, err, ap);|' ./libgeneral/libgeneral/exception.cpp
 sleep 1
 echo "patching libfragmentzip"
 sed -i'' 's|fopen(savepath, \"w\")|fopen(savepath, \"wb\")|' ./libfragmentzip/libfragmentzip/libfragmentzip.c
@@ -51,7 +51,7 @@ sleep 1
 wget https://curl.se/download/curl-$CURL_VERSION.tar.gz
 tar -zxvf curl-$CURL_VERSION.tar.gz
 cd ./curl-$CURL_VERSION
-./configure $BUILD_OPTIONS  --disable-dependency-tracking --with-schannel --with-winidn --without-ssl --without-brotli --without-libgsasl --without-libpsl --without-librtmp --without-zstd
+./configure $BUILD_OPTIONS  --disable-dependency-tracking --with-schannel --with-winidn --without-brotli --without-libgsasl --without-libpsl --without-librtmp --without-zstd
 make install LDFLAGS=-all-static
 cd ..
 echo "Building libplist"
