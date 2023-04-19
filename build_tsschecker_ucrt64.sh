@@ -17,7 +17,7 @@ echo -e "Installing Required packages:"
 pacman -S --needed --noconfirm mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-libzip
 pacman -S --needed --noconfirm make automake autoconf autoconf-archive autogen bc bison flex cmake pkgconf openssl libtool m4 libidn2 git patch ed sed texinfo libunistring libunistring-devel python cython python-devel zsh
 echo "Packages installed, creating working directory:"
-export CURL_VERSION="7.87.0"
+export CURL_VERSION="8.0.1"
 export BUILD_OPTIONS="--enable-static --disable-shared --prefix=/tmp/tsschecker_build_win-ucrt64"
 export IS_STATIC=1
 mkdir ./tsschecker_build_win-ucrt64
@@ -49,7 +49,7 @@ sleep 1
 echo "Building curl"
 sleep 1
 wget https://curl.se/download/curl-$CURL_VERSION.tar.gz
-tar -zxvf curl-$CURL_VERSION.tar.gz
+tar -zxf curl-$CURL_VERSION.tar.gz
 cd ./curl-$CURL_VERSION
 ./configure $BUILD_OPTIONS --disable-dependency-tracking --with-schannel --with-winidn --without-brotli --without-libgsasl --without-libpsl --without-librtmp --without-zstd
 make install LDFLAGS=-all-static
