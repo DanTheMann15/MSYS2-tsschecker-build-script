@@ -17,7 +17,7 @@ echo -e "Installing Required packages:"
 pacman -S --needed --noconfirm mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-libzip
 pacman -S --needed --noconfirm make automake autoconf autoconf-archive autogen bc bison flex cmake pkgconf openssl libtool m4 libidn2 git patch ed sed texinfo libunistring libunistring-devel python cython python-devel zsh
 echo "Packages installed, creating working directory:"
-export CURL_VERSION="8.0.1"
+export CURL_VERSION="8.3.0"
 export BUILD_OPTIONS="--enable-static --disable-shared --prefix=/tmp/tsschecker_build_win-ucrt64"
 export IS_STATIC=1
 mkdir ./tsschecker_build_win-ucrt64
@@ -34,9 +34,15 @@ git clone --recursive https://github.com/tihmstar/libgeneral.git
 git clone --recursive https://github.com/tihmstar/libfragmentzip.git
 git clone --recursive https://github.com/DanTheMann15/tsschecker.git
 echo "applying patches:"
+echo "patching libplist"
+sed -i'' 's|#define LIBPLIST_H|#define LIBPLIST_H\n#define LIBPLIST_STATIC|' ./libplist/include/plist/plist.h
+sleep 1
 echo "patching libirecovery"
 wget -q https://gist.github.com/1Conan/2d015aad17f87f171b32ebfd9f48fb96/raw/c12fca047f8b0bba1c8983470bf863d80d7e1c1d/libirecovery.patch
+sed -i'' 's|IRECV_API void irecv_init(void)|void irecv_init(void)|' libirecovery.patch
+sed -i'' 's|IRECV_API void irecv_exit(void)|void irecv_exit(void)|' libirecovery.patch
 patch -p1 < libirecovery.patch -d ./libirecovery
+sed -i'' 's|#define LIBIRECOVERY_H|#define LIBIRECOVERY_H\n#define IRECV_STATIC|' ./libirecovery/include/libirecovery.h
 sleep 1
 echo "patching libgeneral"
 sed -i'' 's|vasprintf(&_err, err, ap);|_err=(char*)malloc(1024);vsprintf(_err, err, ap);|' ./libgeneral/libgeneral/exception.cpp
