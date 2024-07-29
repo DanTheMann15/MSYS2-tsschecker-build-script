@@ -14,10 +14,10 @@ export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:-I/mingw32/include:-I/tmp/tsscheck
 export OBJC_INCLUDE_PATH=$OBJC_INCLUDE_PATH:-I/mingw32/include:-I/tmp/tsschecker_build_win32/include
 sleep 1
 echo -e "Installing Required packages:"
-pacman -S --needed --noconfirm mingw-w64-i686-toolchain mingw-w64-i686-openssl mingw-w64-i686-libzip
+pacman -S --needed --noconfirm mingw-w64-i686-toolchain mingw-w64-i686-libzip
 pacman -S --needed --noconfirm make automake autoconf autoconf-archive autogen bc bison flex cmake pkgconf openssl libtool m4 libidn2 git patch ed sed texinfo libunistring libunistring-devel python cython python-devel zsh
 echo "Packages installed, creating working directory:"
-export CURL_VERSION="8.3.0"
+export CURL_VERSION="8.9.0"
 export BUILD_OPTIONS="--enable-static --disable-shared --prefix=/tmp/tsschecker_build_win32"
 export IS_STATIC=1
 mkdir ./tsschecker_build_win32
@@ -38,10 +38,6 @@ echo "patching libplist"
 sed -i'' 's|#define LIBPLIST_H|#define LIBPLIST_H\n#define LIBPLIST_STATIC|' ./libplist/include/plist/plist.h
 sleep 1
 echo "patching libirecovery"
-wget -q https://gist.github.com/1Conan/2d015aad17f87f171b32ebfd9f48fb96/raw/c12fca047f8b0bba1c8983470bf863d80d7e1c1d/libirecovery.patch
-sed -i'' 's|IRECV_API void irecv_init(void)|void irecv_init(void)|' libirecovery.patch
-sed -i'' 's|IRECV_API void irecv_exit(void)|void irecv_exit(void)|' libirecovery.patch
-patch -p1 < libirecovery.patch -d ./libirecovery
 sed -i'' 's|#define LIBIRECOVERY_H|#define LIBIRECOVERY_H\n#define IRECV_STATIC|' ./libirecovery/include/libirecovery.h
 sleep 1
 echo "patching libgeneral"
@@ -49,6 +45,7 @@ sed -i'' 's|vasprintf(&_err, err, ap);|_err=(char*)malloc(1024);vsprintf(_err, e
 sleep 1
 echo "patching libfragmentzip"
 sed -i'' 's|fopen(savepath, \"w\")|fopen(savepath, \"wb\")|' ./libfragmentzip/libfragmentzip/libfragmentzip.c
+sed -i '31d;33d' ./libfragmentzip/libfragmentzip/libfragmentzip.c
 sleep 1
 echo "patches applied, continuing:"
 sleep 1
@@ -75,12 +72,7 @@ cd ..
 echo "Building libirecovery"
 sleep 1
 cd ./libirecovery
-libtoolize --force
-aclocal -I m4
-autoheader
-automake --add-missing
-autoconf
-./configure $BUILD_OPTIONS --with-dummy --without-udev
+./autogen.sh $BUILD_OPTIONS --with-dummy --without-tools --without-udev
 make install LDFLAGS=-all-static
 cd ..
 echo "Building libgeneral"
@@ -100,20 +92,23 @@ sleep 1
 cd ./tsschecker
 ./autogen.sh $BUILD_OPTIONS
 make LDFLAGS=-all-static
-cd ..
-echo "Done building, cleaning up temp files:"
 sleep 1
-rm -f curl-$CURL_VERSION.tar.gz
-rm -fr curl-$CURL_VERSION
-rm -fr libplist
-rm -fr libimobiledevice-glue
-rm -fr libirecovery
-rm -fr libgeneral
-rm -fr libfragmentzip
-rm -f libirecovery.patch
-rm -fr /tmp/tsschecker_build_win32
-mv -f tsschecker/tsschecker/tsschecker.exe ../tsschecker_win32.exe
-cd ..
-rm -fr tsschecker_build_win32
-echo "Done!"
-echo "tsschecker.exe can be found inside the working directory"
+cp tsschecker/tsschecker.exe ../../tsschecker_win32.exe
+cd ../..
+echo "Compiling complete!"
+echo "tsschecker_win32.exe can be found inside the working directory"
+sleep 1
+read -p "Do you want to clean up the temporary tsschecker build files? [Y/n]: " Yn
+case $Yn in 
+	Y|y )
+		echo Cleaning up temporary tsschecker build files...
+		rm -fr /tmp/tsschecker_build_win32
+		rm -fr tsschecker_build_win32
+		echo Done!
+		;;
+	N|n )
+		echo Done!
+		;;
+	* ) echo Done!
+		;;
+esac
